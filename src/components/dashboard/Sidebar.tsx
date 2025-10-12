@@ -55,7 +55,7 @@ export default function Sidebar() {
             <BarChart3 className="w-5 h-5 text-black" />
           </div>
           {!isCollapsed && (
-            <h1 className="text-xl font-bold text-white">Insider</h1>
+            <h1 className="text-xl font-bold text-white">Insight</h1>
           )}
         </div>
 

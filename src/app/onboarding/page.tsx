@@ -68,7 +68,7 @@ export default function OnboardingPage() {
 
     //TODO: Send data to backend
     try {
-      const res = await fetch("https://e9555883258a.ngrok-free.app/api/companies", {
+      const res = await fetch("http://34.132.25.152:5001/api/companies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

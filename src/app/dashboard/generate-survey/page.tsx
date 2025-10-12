@@ -38,6 +38,8 @@ export default function GenerateLinkPage() {
       });
       if (!response.ok) throw new Error("Failed to create survey");
 
+      sessionStorage.setItem("surveyId", surveyId);
+      
       setGeneratedLink(`http://localhost:3000/interview/start/${surveyId}`);
       setSubmitted(true);
     } catch (e) {

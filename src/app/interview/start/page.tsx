@@ -30,6 +30,7 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
     gender: "",
     surveyId: ""
   });
+
   const [session_id, setsession_id] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -42,10 +43,23 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [displayedText, setDisplayedText] = useState("");
+
 
   // Handle URL parameter for surveyId
   useEffect(() => {
-    const surveyId = params?.uuid || searchParams?.get('surveyId');
+    // Try multiple ways to get the surveyId
+    let surveyId = params?.uuid || searchParams?.get('surveyId');
+    
+    // If no surveyId from params, try to extract from URL path
+    if (!surveyId && typeof window !== 'undefined') {
+      const pathParts = window.location.pathname.split('/');
+      const uuidIndex = pathParts.findIndex(part => part === 'start') + 1;
+      if (uuidIndex > 0 && pathParts[uuidIndex]) {
+        surveyId = pathParts[uuidIndex];
+      }
+    }
+    
     if (surveyId) {
       setUserInfo(prev => ({ ...prev, surveyId }));
       sessionStorage.setItem('surveyId', surveyId);
@@ -99,7 +113,7 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
     setIsProcessing(true);
     // TODO: change the link
     try {
-      const res = await fetch(`https://e9555883258a.ngrok-free.app/api/surveys/${userInfo.surveyId}/customers`, {
+      const res = await fetch(`http://34.132.25.152:5001/api/surveys/${userInfo.surveyId}/customers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -158,7 +172,7 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
   
     // TODO: change the link
     try {
-      const response = await fetch(`https://e9555883258a.ngrok-free.app/api/surveys/${userInfo.surveyId}/customers/${userInfo.surveyId}/chat`, {
+      const response = await fetch(`http://34.132.25.152:5001/api/surveys/${userInfo.surveyId}/customers/${userInfo.surveyId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: answer }),
@@ -293,37 +307,84 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
     }
   };
 
+  // const speakText = async (text: string) => {
+  //   if (!text) return;
+  //   setIsSpeaking(true);
+  //   try {
+  //     const response = await fetch(
+  //       "https://api.deepgram.com/v1/speak?model=aura-2-thalia-en",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: "Token c3ff4a1fd93fb5adad42674253b99e07c5f86d58",
+  //         },
+  //         body: JSON.stringify({ text }),
+  //       }
+  //     );
+  //     if (!response.ok) throw new Error("TTS API error");
+  //     const audioBlob = await response.blob();
+  //     const audioUrl = URL.createObjectURL(audioBlob);
+  //     const audio = new Audio(audioUrl);
+  //     audio.onended = () => {
+  //       setIsSpeaking(false);
+  //       URL.revokeObjectURL(audioUrl);
+  //     };
+  //     audio.play();
+  //   } catch (error) {
+  //     console.error("TTS failed:", error);
+  //     setIsSpeaking(false);
+  //   }
+  // };
+
+  // Start recording audio
+
   const speakText = async (text: string) => {
     if (!text) return;
     setIsSpeaking(true);
+    setDisplayedText("");
+  
     try {
-      const response = await fetch(
-        "https://api.deepgram.com/v1/speak?model=aura-2-thalia-en",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Token c3ff4a1fd93fb5adad42674253b99e07c5f86d58",
-          },
-          body: JSON.stringify({ text }),
-        }
-      );
+      const words = text.split(" ");
+      const revealSpeed = 150;
+  
+      let index = 0;
+      const interval = setInterval(() => {
+        setDisplayedText((prev) => prev + (index === 0 ? "" : " ") + words[index]);
+        index++;
+        if (index >= words.length) clearInterval(interval);
+      }, revealSpeed);
+  
+      const response = await fetch("https://api.deepgram.com/v1/speak?model=aura-2-thalia-en", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY}`,
+        },
+        body: JSON.stringify({ text }),
+      });
       if (!response.ok) throw new Error("TTS API error");
+  
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
+  
       audio.onended = () => {
         setIsSpeaking(false);
+        clearInterval(interval);
         URL.revokeObjectURL(audioUrl);
+        setDisplayedText(text);
       };
+  
       audio.play();
     } catch (error) {
       console.error("TTS failed:", error);
       setIsSpeaking(false);
+      setDisplayedText(text);
     }
   };
+  
 
-  // Start recording audio
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -335,7 +396,6 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
         }
       });
       
-      // Use webm format which is better supported by Deepgram
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm;codecs=opus'
       });
@@ -355,7 +415,7 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start(100); // Record in 100ms chunks for better quality
+      mediaRecorder.start(100); 
       setIsRecording(true);
     } catch (error) {
       console.error("Error starting recording:", error);
@@ -380,7 +440,7 @@ export default function InterviewStartPage({ params }: { params?: { uuid?: strin
       const response = await fetch('https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true', {
         method: 'POST',
         headers: {
-          'Authorization': 'Token c3ff4a1fd93fb5adad42674253b99e07c5f86d58',
+          'Authorization': `Token ${process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY}`,
           'Content-Type': 'audio/webm;codecs=opus',
         },
         body: arrayBuffer,

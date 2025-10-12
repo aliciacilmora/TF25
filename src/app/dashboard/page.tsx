@@ -1,13 +1,14 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useSession } from "next-auth/react";
-import { 
-  TrendingUp, 
-  Users, 
-  BarChart3, 
+import {
+  TrendingUp,
+  Users,
+  BarChart3,
   Link2,
-  ArrowRight 
+  ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -22,42 +23,71 @@ interface Survey {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
+
+  // Stats state
+  const [summary, setSummary] = useState({
+    completed_surveys: 0,
+    in_progress_surveys: 0,
+    total_participants: 0,
+  });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSurveys();
-  }, []);
+    const fetchSummary = async () => {
+      const surveyId = sessionStorage.getItem("surveyId");
 
-  // Refresh surveys when component becomes visible (e.g., returning from generate-link)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchSurveys();
+      if (!surveyId) {
+        console.error("No surveyId found in sessionStorage");
+        setError("No surveyId found in sessionStorage");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://34.132.25.152:5001/api/surveys/${surveyId}/ai-summary`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const json = await res.json();
+
+        if (json?.data?.summary) {
+          setSummary(json.data.summary);
+        }
+
+        if (json?.data?.surveys) {
+          setSurveys(json.data.surveys);
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    fetchSummary();
+  }, []);
+  // Fetch surveys list
+  useEffect(() => {
+    const fetchSurveys = async () => {
+      try {
+        const response = await fetch("/api/surveys");
+        if (response.ok) {
+          const data = await response.json();
+          setSurveys(data.surveys || []);
+        }
+      } catch (error) {
+        console.error("Error fetching surveys:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSurveys();
   }, []);
 
-  const fetchSurveys = async () => {
-    try {
-      const response = await fetch("/api/surveys");
-      if (response.ok) {
-        const data = await response.json();
-        setSurveys(data.surveys || []);
-      }
-    } catch (error) {
-      console.error("Error fetching surveys:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const totalSurveys = surveys.length;
-  const activeLinks = surveys.filter(s => s.status === "active").length;
-  const totalResponses = surveys.reduce((acc, survey) => acc + (survey.responses?.length || 0), 0);
+  const totalSurveys = summary.completed_surveys;
+  const activeLinks = summary.completed_surveys + summary.in_progress_surveys;
+  const totalResponses = summary.total_participants;
 
   const stats = [
     {
@@ -104,7 +134,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto p-6">
       {/* Welcome Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -112,9 +142,7 @@ export default function DashboardPage() {
         transition={{ duration: 0.6 }}
         className="mb-8"
       >
-        <h1 className="text-4xl font-bold text-white mb-2">
-          Welcome!
-        </h1>
+        <h1 className="text-4xl font-bold text-white mb-2">Welcome!</h1>
         <p className="text-slate-400 text-lg">
           Ready to gather insights and analyze your data?
         </p>
@@ -138,11 +166,15 @@ export default function DashboardPage() {
               className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center`}>
+                <div
+                  className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center`}
+                >
                   <Icon className="w-6 h-6 text-black" />
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stat.value}
+                  </div>
                   <div className="text-sm text-slate-400">{stat.title}</div>
                 </div>
               </div>
@@ -174,16 +206,16 @@ export default function DashboardPage() {
                 className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300 text-left group"
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center flex-shrink-0`}
+                  >
                     <Icon className="w-6 h-6 text-black" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                       {action.title}
                     </h3>
-                    <p className="text-slate-400 mb-4">
-                      {action.description}
-                    </p>
+                    <p className="text-slate-400 mb-4">{action.description}</p>
                     <div className="flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors">
                       <span className="text-sm font-medium">Get Started</span>
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -196,7 +228,7 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Recent Activity */}
+      {/* Recent Surveys */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -204,6 +236,7 @@ export default function DashboardPage() {
         className="bg-slate-800 rounded-xl p-6 border border-slate-700"
       >
         <h2 className="text-xl font-bold text-white mb-4">Recent Surveys</h2>
+
         {loading ? (
           <div className="text-center py-12">
             <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -237,24 +270,29 @@ export default function DashboardPage() {
                         Survey #{survey.id.slice(0, 8)}
                       </h3>
                       <p className="text-sm text-slate-400">
-                        {survey.questions.length} questions • Created {new Date(survey.createdAt).toLocaleDateString()}
+                        {survey.questions.length} questions • Created{" "}
+                        {new Date(survey.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      survey.status === "active" 
-                        ? "bg-green-500/20 text-green-400" 
-                        : "bg-slate-500/20 text-slate-400"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        survey.status === "active"
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-slate-500/20 text-slate-400"
+                      }`}
+                    >
                       {survey.status}
                     </span>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/survey/${survey.id}`);
-                        // Could add a toast notification here
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/survey/${survey.id}`
+                        );
+                        // You can add a toast notification here for user feedback
                       }}
                       className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-lg transition-colors"
                     >
@@ -264,6 +302,7 @@ export default function DashboardPage() {
                 </div>
               </motion.div>
             ))}
+
             {surveys.length > 3 && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
