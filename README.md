@@ -56,3 +56,10 @@ npx prisma generate && npx prisma db push
 ```
 npm run dev
 ```
+
+### Install
+```
+npm install next react react-dom tailwindcss postcss autoprefixer framer-motion clsx tailwind-merge class-variance-authority \
+@tabler/icons-react lucide-react axios @tanstack/react-query zustand next-auth @prisma/client @next-auth/prisma-adapter uuid \
+recharts react-circular-progressbar react-wordcloud chart.js react-chartjs-2 @deepgram/sdk
+```
