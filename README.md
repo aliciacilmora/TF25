@@ -34,3 +34,25 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+### Docker command to run
+```
+docker run --name postgres_insight_ai \
+  -e POSTGRES_USER=username \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=insight_ai \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+
+### prisma commands to run
+```
+npx prisma generate && npx prisma db push
+```
+
+### Frontend command
+```
+npm run dev
+```
