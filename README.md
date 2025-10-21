@@ -1,40 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Insider
 
-## Getting Started
+**Insider** is a modern, data-driven  platform built with **Next.js**, designed to provide startups and businesses with actionable insights derived from structured interviews. It offers an intuitive onboarding experience, real-time analytics, and dynamic visualization of interview data — all in one seamless dashboard.
 
-First, run the development server:
+---
 
+## Overview
+
+The platform serves as an **interactive dashboard** that connects **startups**, **businesses**, and **interviewees** through a streamlined insight-gathering workflow.
+
+### User Flow
+
+#### **1. Landing Page**
+Upon visiting the site, users are greeted with two primary options:
+- **For Startups / Businesses:** Access the insight generation dashboard.
+- **For Interviewees:** Join or complete an assigned interview.
+
+#### **2. Startup / Business Flow**
+1. **OAuth Authentication** – The user logs in using their preferred provider (Google, GitHub, etc.).
+2. **Onboarding** – A guided onboarding process collects essential startup/business information.
+3. **Interview Link Generation** – A shareable link is created, allowing the startup to invite participants for interviews.
+4. **Interview Session** – Interviewees complete the structured interview via the provided link.
+5. **Insight Dashboard** – Once interviews are completed, the dashboard automatically updates with detailed insights, visualized using:
+   - Dynamic charts and graphs  
+   - Sentiment and keyword analysis  
+   - Interview performance breakdowns  
+
+---
+
+
+---
+
+## Installation & Setup
+
+### 1. **Clone the repository**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/aliciacilmora/TF25
+cd TF-25
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
 
 ### Docker command to run
 ```
