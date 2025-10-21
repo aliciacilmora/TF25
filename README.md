@@ -6,7 +6,16 @@
 
 ## Demo Video
 
-[![Watch the Demo](https://img.youtube.com/vi/-Cl7urpgD2E/hqdefault.jpg)](https://youtu.be/-Cl7urpgD2E)
+## 🎥 Demo Video
+
+<p align="center">
+  <a href="https://youtu.be/-Cl7urpgD2E" target="_blank">
+    <img src="https://img.youtube.com/vi/-Cl7urpgD2E/maxresdefault.jpg" 
+         alt="Watch the Demo Video" 
+         width="80%" 
+         style="border-radius:12px;">
+  </a>
+</p>
 
 
 ## Overview
