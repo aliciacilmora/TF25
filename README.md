@@ -6,8 +6,6 @@
 
 ## Demo Video
 
-## 🎥 Demo Video
-
 <p align="center">
   <a href="https://youtu.be/JaoC4Q1p5nk" target="_blank">
     <img src="https://img.youtube.com/vi/JaoC4Q1p5nk/maxresdefault.jpg" 
