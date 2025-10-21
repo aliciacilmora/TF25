@@ -14,6 +14,9 @@
          style="border-radius:12px;">
   </a>
 </p>
+<p align="center">
+  <em>Click the image above to watch the full demo on YouTube.</em>
+</p>
 
 
 ## Overview
