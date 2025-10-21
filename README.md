@@ -49,19 +49,16 @@ docker run --name postgres_insight_ai \
 ```
 
 
-### prisma commands to run
+### Prisma commands to run
 ```
 npx prisma generate && npx prisma db push
 ```
+### Install dependencies
+```
+npm install
+```
 
-### Frontend command
+### Run frontend
 ```
-npm run dev
-```
-
-### Install
-```
-npm install next react react-dom tailwindcss postcss autoprefixer framer-motion clsx tailwind-merge class-variance-authority \
-@tabler/icons-react lucide-react axios @tanstack/react-query zustand next-auth @prisma/client @next-auth/prisma-adapter uuid \
-recharts react-circular-progressbar react-wordcloud chart.js react-chartjs-2 @deepgram/sdk
+npm run build && npm start
 ```
