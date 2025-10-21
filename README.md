@@ -4,6 +4,11 @@
 
 ---
 
+## Demo Video
+
+[![Watch the Demo](https://img.youtube.com/vi/-Cl7urpgD2E/hqdefault.jpg)](https://youtu.be/-Cl7urpgD2E)
+
+
 ## Overview
 
 The platform serves as an **interactive dashboard** that connects **startups**, **businesses**, and **interviewees** through a streamlined insight-gathering workflow.
